@@ -1,16 +1,17 @@
 import { Contract } from "./contract.enum";
 import { Team } from "./team.enum";
 
-export interface User {
+export type User = {
     id: string;
     lastname: string;
     firstname: string;
-    team: Team;
+    email: string;
     city: string;
+    image_profile: string;
+    team: Team;
     contract: Contract;
+    fc_id: string;
     to_convey: boolean;
     is_available: boolean;
-    email: string;
-    createdAt: Date;
-    updatedAt: Date;
-}
+    announcement_id: string;
+};
