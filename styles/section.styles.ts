@@ -34,7 +34,7 @@ export const sectionStyles = StyleSheet.create({
     },
     textArea: {
         width: "100%",
-        flexDirection: "row",
+        flexDirection: "column",
         alignItems: "center",
         justifyContent: "flex-start",
         paddingRight: 12,

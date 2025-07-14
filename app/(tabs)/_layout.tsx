@@ -37,7 +37,7 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="addAnnonce"
+                name="addAnnouncement"
                 options={{
                     title: "Ajouter",
                     tabBarIcon: ({ color }) => (
