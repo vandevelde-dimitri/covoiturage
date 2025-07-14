@@ -28,7 +28,7 @@ export default function TabLayout() {
             }}
         >
             <Tabs.Screen
-                name="index"
+                name="home"
                 options={{
                     title: "Home",
                     tabBarIcon: ({ color }) => (
@@ -37,9 +37,22 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="explore"
+                name="addAnnonce"
                 options={{
-                    title: "Explore",
+                    title: "Ajouter",
+                    tabBarIcon: ({ color }) => (
+                        <IconSymbol
+                            size={28}
+                            name="paperplane.fill"
+                            color={color}
+                        />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="account"
+                options={{
+                    title: "Compte",
                     tabBarIcon: ({ color }) => (
                         <IconSymbol
                             size={28}
