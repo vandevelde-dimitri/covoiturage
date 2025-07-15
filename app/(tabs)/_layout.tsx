@@ -43,7 +43,7 @@ export default function TabLayout() {
                     tabBarIcon: ({ color }) => (
                         <IconSymbol
                             size={28}
-                            name="paperplane.fill"
+                            name="plus.circle.fill"
                             color={color}
                         />
                     ),
@@ -56,7 +56,7 @@ export default function TabLayout() {
                     tabBarIcon: ({ color }) => (
                         <IconSymbol
                             size={28}
-                            name="paperplane.fill"
+                            name="person.circle.fill"
                             color={color}
                         />
                     ),
