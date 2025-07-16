@@ -1,4 +1,5 @@
 import { profileStyles } from "@/styles/profile.styles";
+import { Contract } from "@/types/contract.enum";
 import FeatherIcon from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
 import { Image, Text, TouchableOpacity, View } from "react-native";
@@ -21,7 +22,16 @@ export default function CardAnnouncement({ item }) {
                 source={{
                     uri: users.image_profile,
                 }}
-                style={profileStyles.profileAvatar}
+                style={[
+                    profileStyles.profileAvatar,
+                    {
+                        borderColor:
+                            users.contract === Contract.CDI
+                                ? "#0530f0ff"
+                                : "#24f808ff",
+                        borderWidth: 2,
+                    },
+                ]}
             />
 
             <View style={profileStyles.profileBody}>

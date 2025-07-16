@@ -1,4 +1,4 @@
 export enum Contract {
-    CDI = "Blue Badge",
-    INTERIM = "Green Badge",
+    CDI = "blue badge",
+    INTERIM = "green badge",
 }
