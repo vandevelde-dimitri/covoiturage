@@ -1,5 +1,4 @@
-import { announcements } from "@/data/announcementMock";
-import { users } from "@/data/userMock";
+import { useAnnouncementById } from "@/hooks/useAnouncement";
 import { contentStyles } from "@/styles/contentStyles";
 import { headerStyles } from "@/styles/header.styles";
 import { profileStyles } from "@/styles/profile.styles";
@@ -23,25 +22,28 @@ export default function AnnouncementDetail() {
     const router = useRouter();
 
     console.log(`Announcement ID: ${id}`);
-    const annoucenement = announcements.find((ann) => ann.id === id);
-    if (!annoucenement) {
-        return (
-            <SafeAreaView
-                style={{
-                    flex: 1,
-                    backgroundColor: "#f8f8f8",
-                    paddingTop: insets.top,
-                    paddingBottom: insets.bottom,
-                    paddingLeft: insets.left,
-                    paddingRight: insets.right,
-                }}
-            >
-                <Text style={{ textAlign: "center", marginTop: 20 }}>
-                    Annonce non trouvée
-                </Text>
-            </SafeAreaView>
-        );
+
+    const {
+        data: annoucenement,
+        isLoading,
+        error,
+    } = useAnnouncementById(id as string);
+
+    if (isLoading) {
+        return <Text>Chargement...</Text>;
     }
+    if (error) {
+        return <Text>Erreur de chargement de l'annonce.</Text>;
+    }
+    if (!annoucenement) {
+        return <Text>Aucune annonce trouvée.</Text>;
+    }
+    console.log("Annonce:", annoucenement);
+
+    const { users } = annoucenement;
+
+    console.log("Annonce Users:", users);
+
     return (
         <SafeAreaView
             style={{
@@ -97,27 +99,16 @@ export default function AnnouncementDetail() {
                             <Image
                                 alt=""
                                 source={{
-                                    uri: users.find(
-                                        (u) => u.id === annoucenement.user_id
-                                    )?.image_profile,
+                                    uri:
+                                        users[0].image_profile ||
+                                        "https://via.placeholder.com/150",
                                 }}
                                 style={profileStyles.profileAvatar}
                             />
 
                             <View style={profileStyles.profileBody}>
                                 <Text style={profileStyles.profileName}>
-                                    {
-                                        users.find(
-                                            (u) =>
-                                                u.id === annoucenement.user_id
-                                        )?.firstname
-                                    }{" "}
-                                    {
-                                        users.find(
-                                            (u) =>
-                                                u.id === annoucenement.user_id
-                                        )?.lastname
-                                    }
+                                    {users[0].firstname} {users[0].lastname}
                                 </Text>
                             </View>
                         </TouchableOpacity>
@@ -142,12 +133,7 @@ export default function AnnouncementDetail() {
                                 <View style={sectionStyles.rowSpacer} />
 
                                 <Text style={sectionStyles.rowValue}>
-                                    {
-                                        users.find(
-                                            (u) =>
-                                                u.id === annoucenement.user_id
-                                        )?.city
-                                    }
+                                    {users[0].city}
                                 </Text>
                             </TouchableOpacity>
                         </View>
@@ -161,12 +147,7 @@ export default function AnnouncementDetail() {
                                 <View style={sectionStyles.rowSpacer} />
 
                                 <Text style={sectionStyles.rowValue}>
-                                    {
-                                        users.find(
-                                            (u) =>
-                                                u.id === annoucenement.user_id
-                                        )?.team
-                                    }
+                                    {users[0].team}
                                 </Text>
                             </TouchableOpacity>
                         </View>
@@ -195,11 +176,7 @@ export default function AnnouncementDetail() {
                                 <View style={sectionStyles.rowSpacer} />
 
                                 <Text style={sectionStyles.rowValue}>
-                                    {users.find(
-                                        (u) => u.id === annoucenement.user_id
-                                    )?.to_convey
-                                        ? "Oui"
-                                        : "Non"}
+                                    {users[0].to_convey ? "Oui" : "Non"}
                                 </Text>
                             </TouchableOpacity>
                         </View>

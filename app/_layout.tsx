@@ -1,5 +1,6 @@
 // app/_layout.tsx
 import { AuthProvider, useAuth } from "@/hooks/authContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Slot, useRouter, useSegments } from "expo-router";
 import React, { useEffect } from "react";
 
@@ -29,9 +30,12 @@ function InitialLayout() {
 }
 
 export default function RootLayout() {
+    const queryClient = new QueryClient();
     return (
-        <AuthProvider>
-            <InitialLayout />
-        </AuthProvider>
+        <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+                <InitialLayout />
+            </AuthProvider>
+        </QueryClientProvider>
     );
 }

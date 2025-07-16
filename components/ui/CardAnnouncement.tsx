@@ -1,12 +1,10 @@
-import { users } from "@/data/userMock";
 import { profileStyles } from "@/styles/profile.styles";
-import { Announcement } from "@/types/announcement.type";
 import FeatherIcon from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
-export default function CardAnnouncement({ item }: { item: Announcement }) {
-    const { id, user_id } = item;
+export default function CardAnnouncement({ item }) {
+    const { id, users } = item;
     return (
         <TouchableOpacity
             key={id}
@@ -21,21 +19,18 @@ export default function CardAnnouncement({ item }: { item: Announcement }) {
             <Image
                 alt=""
                 source={{
-                    uri: users.find((u) => u.id === user_id)?.image_profile,
+                    uri: users.image_profile,
                 }}
                 style={profileStyles.profileAvatar}
             />
 
             <View style={profileStyles.profileBody}>
                 <Text style={profileStyles.profileName}>
-                    {users.find((u) => u.id === user_id)?.firstname}{" "}
-                    {users.find((u) => u.id === user_id)?.lastname}
-                    {` (${users.find((u) => u.id === user_id)?.team})`}
+                    {users.firstname} {users.lastname}
+                    {` (${users.team})`}
                 </Text>
 
-                <Text style={profileStyles.profileHandle}>
-                    {users.find((u) => u.id === user_id)?.city}
-                </Text>
+                <Text style={profileStyles.profileHandle}>{users.city}</Text>
             </View>
 
             <FeatherIcon color="#bcbcbc" name="chevron-right" size={22} />
