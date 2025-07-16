@@ -75,4 +75,11 @@ export const sectionStyles = StyleSheet.create({
         fontWeight: "600",
         color: "#dc2626",
     },
+    disabled: {
+        width: "100%",
+        textAlign: "center",
+        fontWeight: "600",
+        color: "#dc2626",
+        opacity: 0.5,
+    },
 });

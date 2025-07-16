@@ -6,7 +6,7 @@ import { sectionStyles } from "@/styles/section.styles";
 import { Contract } from "@/types/contract.enum";
 import FeatherIcon from "@expo/vector-icons/Feather";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
     Image,
     SafeAreaView,
@@ -21,8 +21,7 @@ export default function AnnouncementDetail() {
     const { id } = useLocalSearchParams();
     const insets = useSafeAreaInsets();
     const router = useRouter();
-
-    console.log(`Announcement ID: ${id}`);
+    const [isMatch, setIsMatch] = useState(false);
 
     const {
         data: annoucenement,
@@ -43,12 +42,7 @@ export default function AnnouncementDetail() {
     if (!annoucenement.users || annoucenement.users.length === 0) {
         return <Text>Aucune information utilisateur trouvée.</Text>;
     }
-
-    console.log("Annonce:", annoucenement);
-
     const { user } = annoucenement;
-
-    console.log("Annonce Users:", user);
 
     return (
         <SafeAreaView
@@ -228,11 +222,25 @@ export default function AnnouncementDetail() {
                                 { alignItems: "center" },
                             ]}
                         >
-                            <TouchableOpacity style={sectionStyles.row}>
+                            <TouchableOpacity
+                                style={sectionStyles.row}
+                                onPress={() => {
+                                    if (isMatch) {
+                                        // handle propose action
+                                        console.log("Proposition envoyée");
+                                    } else {
+                                        console.log(
+                                            "Impossible de se proposer"
+                                        );
+                                    }
+                                }}
+                            >
                                 <Text
                                     style={[
                                         sectionStyles.rowLabel,
-                                        sectionStyles.rowLabelLogout,
+                                        isMatch
+                                            ? sectionStyles.rowLabelLogout
+                                            : sectionStyles.disabled,
                                     ]}
                                 >
                                     Se proposer
