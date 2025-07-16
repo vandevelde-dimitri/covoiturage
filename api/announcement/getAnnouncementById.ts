@@ -11,7 +11,7 @@ export async function getAnnouncementByid(id: string) {
                 content, 
                 number_of_places,
                 user_id,
-                users (
+                users!inner (
                   id,
                   firstname,
                   lastname,
@@ -34,7 +34,7 @@ export async function getAnnouncementByid(id: string) {
 
         console.log("Annonce récupérée:", data);
 
-        return { ...data, users: data.users };
+        return { ...data, user: data.users };
     } catch (error) {
         console.error("Erreur inattendue dans getAnnouncementByid:", error);
         return null;

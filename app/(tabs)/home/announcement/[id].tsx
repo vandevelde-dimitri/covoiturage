@@ -38,11 +38,16 @@ export default function AnnouncementDetail() {
     if (!annoucenement) {
         return <Text>Aucune annonce trouvée.</Text>;
     }
+
+    if (!annoucenement.users || annoucenement.users.length === 0) {
+        return <Text>Aucune information utilisateur trouvée.</Text>;
+    }
+
     console.log("Annonce:", annoucenement);
 
-    const { users } = annoucenement;
+    const { user } = annoucenement;
 
-    console.log("Annonce Users:", users);
+    console.log("Annonce Users:", user);
 
     return (
         <SafeAreaView
@@ -100,7 +105,7 @@ export default function AnnouncementDetail() {
                                 alt=""
                                 source={{
                                     uri:
-                                        users[0].image_profile ||
+                                        user.image_profile ||
                                         "https://via.placeholder.com/150",
                                 }}
                                 style={profileStyles.profileAvatar}
@@ -108,7 +113,7 @@ export default function AnnouncementDetail() {
 
                             <View style={profileStyles.profileBody}>
                                 <Text style={profileStyles.profileName}>
-                                    {users[0].firstname} {users[0].lastname}
+                                    {user.firstname} {user.lastname}
                                 </Text>
                             </View>
                         </TouchableOpacity>
@@ -133,7 +138,7 @@ export default function AnnouncementDetail() {
                                 <View style={sectionStyles.rowSpacer} />
 
                                 <Text style={sectionStyles.rowValue}>
-                                    {users[0].city}
+                                    {user.city}
                                 </Text>
                             </TouchableOpacity>
                         </View>
@@ -147,7 +152,7 @@ export default function AnnouncementDetail() {
                                 <View style={sectionStyles.rowSpacer} />
 
                                 <Text style={sectionStyles.rowValue}>
-                                    {users[0].team}
+                                    {user.team}
                                 </Text>
                             </TouchableOpacity>
                         </View>
@@ -176,7 +181,7 @@ export default function AnnouncementDetail() {
                                 <View style={sectionStyles.rowSpacer} />
 
                                 <Text style={sectionStyles.rowValue}>
-                                    {users[0].to_convey ? "Oui" : "Non"}
+                                    {user.to_convey ? "Oui" : "Non"}
                                 </Text>
                             </TouchableOpacity>
                         </View>
