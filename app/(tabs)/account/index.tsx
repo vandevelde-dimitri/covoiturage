@@ -1,20 +1,25 @@
-import { supabase } from "@/utils/supabase";
+import { View, Text, Button } from "react-native";
+import { router } from "expo-router";
 import React from "react";
-import { Button, Text, View } from "react-native";
 
 export default function AccountHome() {
-    const handleSignOut = async () => {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-            console.error("Erreur de déconnexion :", error.message);
-        }
-    };
     return (
         <View
             style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
             <Text>Bienvenue dans l’espace Compte</Text>
-            <Button onPress={handleSignOut} title="Déconnexion" />
+            <Button
+                title="Mes favoris"
+                onPress={() => router.push("/account/favoris")}
+            />
+            <Button
+                title="Mes annonces"
+                onPress={() => router.push("/account/annonces")}
+            />
+            <Button
+                title="Paramètres"
+                onPress={() => router.push("/account/settings")}
+            />
         </View>
     );
 }
