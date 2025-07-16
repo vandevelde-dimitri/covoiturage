@@ -1,4 +1,4 @@
-import CardAnnouncement from "@/components/ui/CardAnnouncement";
+import ListAnnouncement from "@/components/ui/ListAnnouncement";
 import { useAnnoncesWithUser } from "@/hooks/useAnouncement";
 import { contentStyles } from "@/styles/contentStyles";
 import { inputSearchStyles } from "@/styles/inputSearch.styles";
@@ -76,7 +76,7 @@ export default function HomeScreen() {
                         >
                             {annonces.map((announce, index) => {
                                 return (
-                                    <CardAnnouncement
+                                    <ListAnnouncement
                                         key={index}
                                         item={announce}
                                     />

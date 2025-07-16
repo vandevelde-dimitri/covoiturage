@@ -1,3 +1,4 @@
+import CardAnnouncement from "@/components/ui/CardAnnouncement";
 import { useAnnouncementById } from "@/hooks/useAnouncement";
 import { contentStyles } from "@/styles/contentStyles";
 import { headerStyles } from "@/styles/header.styles";
@@ -42,7 +43,7 @@ export default function AnnouncementDetail() {
     if (!annoucenement.users || annoucenement.users.length === 0) {
         return <Text>Aucune information utilisateur trouvée.</Text>;
     }
-    const { user } = annoucenement;
+    const { users: user } = annoucenement;
 
     return (
         <SafeAreaView
@@ -79,6 +80,7 @@ export default function AnnouncementDetail() {
                     <TouchableOpacity
                         onPress={() => {
                             // handle onPress
+                            //+ add more options if needed
                         }}
                     >
                         <FeatherIcon
@@ -124,73 +126,7 @@ export default function AnnouncementDetail() {
                     </View>
                 </View>
 
-                <View style={sectionStyles.section}>
-                    <Text style={sectionStyles.sectionTitle}>Detail</Text>
-
-                    <View style={sectionStyles.sectionBody}>
-                        <View
-                            style={[
-                                sectionStyles.rowWrapper,
-                                sectionStyles.rowFirst,
-                            ]}
-                        >
-                            <TouchableOpacity style={sectionStyles.row}>
-                                <Text style={sectionStyles.rowLabel}>
-                                    Ville de départ
-                                </Text>
-
-                                <View style={sectionStyles.rowSpacer} />
-
-                                <Text style={sectionStyles.rowValue}>
-                                    {user.city}
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={sectionStyles.rowWrapper}>
-                            <TouchableOpacity style={sectionStyles.row}>
-                                <Text style={sectionStyles.rowLabel}>
-                                    Equipe
-                                </Text>
-
-                                <View style={sectionStyles.rowSpacer} />
-
-                                <Text style={sectionStyles.rowValue}>
-                                    {user.team}
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={sectionStyles.rowWrapper}>
-                            <TouchableOpacity style={sectionStyles.row}>
-                                <Text style={sectionStyles.rowLabel}>
-                                    Place restante
-                                </Text>
-
-                                <View style={sectionStyles.rowSpacer} />
-
-                                <Text style={sectionStyles.rowValue}>5</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <View
-                            style={[
-                                sectionStyles.rowWrapper,
-                                sectionStyles.rowLast,
-                            ]}
-                        >
-                            <TouchableOpacity style={sectionStyles.row}>
-                                <Text style={sectionStyles.rowLabel}>
-                                    Véhiculer
-                                </Text>
-
-                                <View style={sectionStyles.rowSpacer} />
-
-                                <Text style={sectionStyles.rowValue}>
-                                    {user.to_convey ? "Oui" : "Non"}
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
+                <CardAnnouncement item={annoucenement} />
 
                 <View style={sectionStyles.section}>
                     <Text style={sectionStyles.sectionTitle}>Description</Text>

@@ -8,7 +8,7 @@ export async function matchPermission(announce_id: string): Promise<Boolean> {
 
     if (role === "passenger" && !isDriver) {
         console.log(
-            "Aucune personne ne peut covoiturer car l'utilisateur n'est pas conducteur."
+            "Aucune personne ne peut covoiturer car l'utilisateur et l'annonceur n'est pas conducteur."
         );
         return false;
     }

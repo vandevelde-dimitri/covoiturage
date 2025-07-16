@@ -1,4 +1,4 @@
-import CardAnnouncement from "@/components/ui/CardAnnouncement";
+import CardAnnouncement from "@/components/ui/ListAnnouncement";
 import { useAnnoncesWithUser } from "@/hooks/useAnouncement";
 import { contentStyles } from "@/styles/contentStyles";
 import { inputSearchStyles } from "@/styles/inputSearch.styles";

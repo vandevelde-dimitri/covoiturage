@@ -1,49 +1,61 @@
-import { profileStyles } from "@/styles/profile.styles";
-import { Contract } from "@/types/contract.enum";
-import FeatherIcon from "@expo/vector-icons/Feather";
-import { router } from "expo-router";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { sectionStyles } from "@/styles/section.styles";
+import { Text, TouchableOpacity, View } from "react-native";
 
 export default function CardAnnouncement({ item }) {
-    const { id, users } = item;
+    console.log("CardAnnouncement item:", item);
+    const { users: user } = item;
+
     return (
-        <TouchableOpacity
-            key={id}
-            onPress={() => {
-                router.push({
-                    pathname: "/(tabs)/home/announcement/[id]",
-                    params: { id },
-                });
-            }}
-            style={profileStyles.profile}
-        >
-            <Image
-                alt=""
-                source={{
-                    uri: users.image_profile,
-                }}
-                style={[
-                    profileStyles.profileAvatar,
-                    {
-                        borderColor:
-                            users.contract === Contract.CDI
-                                ? "#0530f0ff"
-                                : "#24f808ff",
-                        borderWidth: 2,
-                    },
-                ]}
-            />
+        <View style={sectionStyles.section}>
+            <Text style={sectionStyles.sectionTitle}>Detail</Text>
 
-            <View style={profileStyles.profileBody}>
-                <Text style={profileStyles.profileName}>
-                    {users.firstname} {users.lastname}
-                    {` (${users.team})`}
-                </Text>
+            <View style={sectionStyles.sectionBody}>
+                <View
+                    style={[sectionStyles.rowWrapper, sectionStyles.rowFirst]}
+                >
+                    <TouchableOpacity style={sectionStyles.row}>
+                        <Text style={sectionStyles.rowLabel}>
+                            Ville de départ
+                        </Text>
 
-                <Text style={profileStyles.profileHandle}>{users.city}</Text>
+                        <View style={sectionStyles.rowSpacer} />
+
+                        <Text style={sectionStyles.rowValue}>{user.city}</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <View style={sectionStyles.rowWrapper}>
+                    <TouchableOpacity style={sectionStyles.row}>
+                        <Text style={sectionStyles.rowLabel}>Equipe</Text>
+
+                        <View style={sectionStyles.rowSpacer} />
+
+                        <Text style={sectionStyles.rowValue}>{user.team}</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={sectionStyles.rowWrapper}>
+                    <TouchableOpacity style={sectionStyles.row}>
+                        <Text style={sectionStyles.rowLabel}>
+                            Place restante
+                        </Text>
+
+                        <View style={sectionStyles.rowSpacer} />
+
+                        <Text style={sectionStyles.rowValue}>5</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={[sectionStyles.rowWrapper, sectionStyles.rowLast]}>
+                    <TouchableOpacity style={sectionStyles.row}>
+                        <Text style={sectionStyles.rowLabel}>Véhiculer</Text>
+
+                        <View style={sectionStyles.rowSpacer} />
+
+                        <Text style={sectionStyles.rowValue}>
+                            {user.to_convey ? "Oui" : "Non"}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-
-            <FeatherIcon color="#bcbcbc" name="chevron-right" size={22} />
-        </TouchableOpacity>
+        </View>
     );
 }
