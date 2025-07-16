@@ -129,26 +129,6 @@ export default function AnnouncementDetail() {
                 <CardAnnouncement item={annoucenement} />
 
                 <View style={sectionStyles.section}>
-                    <Text style={sectionStyles.sectionTitle}>Description</Text>
-
-                    <View style={sectionStyles.sectionBody}>
-                        <View
-                            style={[
-                                sectionStyles.rowWrapper,
-                                sectionStyles.rowFirst,
-                                sectionStyles.rowLast,
-                            ]}
-                        >
-                            <TouchableOpacity style={sectionStyles.textArea}>
-                                <Text>{annoucenement.title}</Text>
-                                <Text style={sectionStyles.rowLabel}>
-                                    {annoucenement.content}
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-                <View style={sectionStyles.section}>
                     <View style={sectionStyles.sectionBody}>
                         <View
                             style={[
