@@ -52,7 +52,7 @@ const LoginScreen = () => {
                 { flex: 1, backgroundColor: "#e8ecf4" },
                 {
                     paddingTop: insets.top,
-                    paddingBottom: insets.bottom,
+                    // paddingBottom: insets.bottom,
                     paddingLeft: insets.left,
                     paddingRight: insets.right,
                 },

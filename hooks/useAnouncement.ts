@@ -2,6 +2,7 @@ import { getAllAnnouncementsWithUser } from "@/api/announcement/getAllAnnounceme
 import { getAnnouncementByidWithUser } from "@/api/announcement/getAnnouncementByIdWithUser";
 import { getAnnouncementByUserId } from "@/api/announcement/getAnnouncementByUserId";
 import { getPublishedAnnouncementsByUser } from "@/api/announcement/getPublishedAnnouncementsByUser";
+import { getFavoriteUser } from "@/api/users/getFavoriteUser";
 import { useQuery } from "@tanstack/react-query";
 
 export function useAnnoncesWithUserWithUser() {
@@ -31,6 +32,14 @@ export function usePublishAnnouncement(userId: string) {
     return useQuery({
         queryKey: ["annonces", userId],
         queryFn: () => getPublishedAnnouncementsByUser(userId),
+        enabled: !!userId, // Only run the query if userId is defined
+    });
+}
+
+export function useFavoriteUser(userId: string) {
+    return useQuery({
+        queryKey: ["favoriteUser", userId],
+        queryFn: () => getFavoriteUser(userId),
         enabled: !!userId, // Only run the query if userId is defined
     });
 }

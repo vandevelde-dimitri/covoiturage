@@ -42,7 +42,7 @@ export default function SettingScreen() {
                 flex: 1,
                 backgroundColor: "#f8f8f8",
                 paddingTop: insets.top,
-                paddingBottom: insets.bottom,
+                // paddingBottom: insets.bottom,
                 paddingLeft: insets.left,
                 paddingRight: insets.right,
             }}

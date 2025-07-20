@@ -3,6 +3,7 @@ import {
     MatchPermissionResponse,
 } from "@/api/matchPermission";
 import CardAnnouncement from "@/components/ui/CardAnnouncement";
+import { useAuth } from "@/hooks/authContext";
 import { useAnnouncementByIdWithUser } from "@/hooks/useAnouncement";
 import { contentStyles } from "@/styles/contentStyles";
 import { headerStyles } from "@/styles/header.styles";
@@ -25,6 +26,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function AnnouncementDetail() {
     const { id } = useLocalSearchParams();
+    const { session } = useAuth();
     const insets = useSafeAreaInsets();
     const router = useRouter();
     const [isMatch, setIsMatch] = useState<MatchPermissionResponse>({
@@ -66,13 +68,16 @@ export default function AnnouncementDetail() {
     }
     const { users: user } = annoucenement;
 
+    if (session?.user?.id === annoucenement.user_id)
+        console.log("✅  c'est mon annonce");
+
     return (
         <SafeAreaView
             style={{
                 flex: 1,
                 backgroundColor: "#f8f8f8",
                 paddingTop: insets.top,
-                paddingBottom: insets.bottom,
+                // paddingBottom: insets.bottom,
                 paddingLeft: insets.left,
                 paddingRight: insets.right,
             }}
