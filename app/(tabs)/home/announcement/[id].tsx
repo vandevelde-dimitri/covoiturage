@@ -1,5 +1,9 @@
+import {
+    matchPermission,
+    MatchPermissionResponse,
+} from "@/api/matchPermission";
 import CardAnnouncement from "@/components/ui/CardAnnouncement";
-import { useAnnouncementById } from "@/hooks/useAnouncement";
+import { useAnnouncementByIdWithUser } from "@/hooks/useAnouncement";
 import { contentStyles } from "@/styles/contentStyles";
 import { headerStyles } from "@/styles/header.styles";
 import { profileStyles } from "@/styles/profile.styles";
@@ -7,12 +11,13 @@ import { sectionStyles } from "@/styles/section.styles";
 import { Contract } from "@/types/contract.enum";
 import FeatherIcon from "@expo/vector-icons/Feather";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Image,
     SafeAreaView,
     ScrollView,
     Text,
+    ToastAndroid,
     TouchableOpacity,
     View,
 } from "react-native";
@@ -22,13 +27,29 @@ export default function AnnouncementDetail() {
     const { id } = useLocalSearchParams();
     const insets = useSafeAreaInsets();
     const router = useRouter();
-    const [isMatch, setIsMatch] = useState(false);
+    const [isMatch, setIsMatch] = useState<MatchPermissionResponse>({
+        status: false,
+        message: "",
+    });
+    const showToast = (message: string) => {
+        ToastAndroid.show(message, ToastAndroid.SHORT);
+    };
+
+    const handleIsMatch = async () => {
+        const { status, message } = await matchPermission(id as string);
+        setIsMatch({ status: status, message: message });
+    };
+    useEffect(() => {
+        if (id) {
+            handleIsMatch();
+        }
+    }, [id]);
 
     const {
         data: annoucenement,
         isLoading,
         error,
-    } = useAnnouncementById(id as string);
+    } = useAnnouncementByIdWithUser(id as string);
 
     if (isLoading) {
         return <Text>Chargement...</Text>;
@@ -141,10 +162,12 @@ export default function AnnouncementDetail() {
                             <TouchableOpacity
                                 style={sectionStyles.row}
                                 onPress={() => {
-                                    if (isMatch) {
+                                    if (isMatch.status) {
                                         // handle propose action
+                                        showToast(isMatch.message);
                                         console.log("Proposition envoyée");
                                     } else {
+                                        showToast(isMatch.message);
                                         console.log(
                                             "Impossible de se proposer"
                                         );

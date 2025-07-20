@@ -1,6 +1,6 @@
 import { supabase } from "@/utils/supabase";
 
-export async function getAllAnnouncements() {
+export async function getAllAnnouncementsWithUser() {
     try {
         const { data, error } = await supabase.from("annonces").select(`
                 id,

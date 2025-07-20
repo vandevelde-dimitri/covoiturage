@@ -1,5 +1,5 @@
 import ListAnnouncement from "@/components/ui/ListAnnouncement";
-import { useAnnoncesWithUser } from "@/hooks/useAnouncement";
+import { useAnnoncesWithUserWithUser } from "@/hooks/useAnouncement";
 import { contentStyles } from "@/styles/contentStyles";
 import { inputSearchStyles } from "@/styles/inputSearch.styles";
 import { sectionStyles } from "@/styles/section.styles";
@@ -14,7 +14,7 @@ export default function HomeScreen() {
     const insets = useSafeAreaInsets();
     const [input, setInput] = useState<string>("");
 
-    const { data: annonces, isLoading, error } = useAnnoncesWithUser();
+    const { data: annonces, isLoading, error } = useAnnoncesWithUserWithUser();
 
     if (isLoading) {
         return <Text>Chargement...</Text>;

@@ -1,18 +1,27 @@
-import { getAllAnnouncements } from "@/api/announcement/getAllAnnouncement";
-import { getAnnouncementByid } from "@/api/announcement/getAnnouncementById";
+import { getAllAnnouncementsWithUser } from "@/api/announcement/getAllAnnouncementWithUser";
+import { getAnnouncementByidWithUser } from "@/api/announcement/getAnnouncementByIdWithUser";
+import { getAnnouncementByUserId } from "@/api/announcement/getAnnouncementByUserId";
 import { useQuery } from "@tanstack/react-query";
 
-export function useAnnoncesWithUser() {
+export function useAnnoncesWithUserWithUser() {
     return useQuery({
         queryKey: ["annonces"],
-        queryFn: getAllAnnouncements,
+        queryFn: getAllAnnouncementsWithUser,
     });
 }
 
-export function useAnnouncementById(id: string) {
+export function useAnnouncementByIdWithUser(id: string) {
     return useQuery({
         queryKey: ["annonce", id],
-        queryFn: () => getAnnouncementByid(id),
+        queryFn: () => getAnnouncementByidWithUser(id),
         enabled: !!id, // Only run the query if id is defined
+    });
+}
+
+export function useAnnouncementByUserId(userId: string) {
+    return useQuery({
+        queryKey: ["annonce", userId],
+        queryFn: () => getAnnouncementByUserId(userId),
+        enabled: !!userId, // Only run the query if userId is defined
     });
 }
