@@ -164,32 +164,52 @@ export default function AnnouncementDetail() {
                                 { alignItems: "center" },
                             ]}
                         >
-                            <TouchableOpacity
-                                style={sectionStyles.row}
-                                onPress={() => {
-                                    if (isMatch.status) {
-                                        // handle propose action
-                                        showToast(isMatch.message);
-                                        console.log("Proposition envoyée");
-                                    } else {
-                                        showToast(isMatch.message);
-                                        console.log(
-                                            "Impossible de se proposer"
-                                        );
-                                    }
-                                }}
-                            >
-                                <Text
-                                    style={[
-                                        sectionStyles.rowLabel,
-                                        isMatch
-                                            ? sectionStyles.rowLabelLogout
-                                            : sectionStyles.disabled,
-                                    ]}
+                            {session?.user?.id === annoucenement.user_id ? (
+                                <TouchableOpacity
+                                    style={sectionStyles.row}
+                                    onPress={() => {
+                                        console.log("Modifier l'annonce");
+                                    }}
                                 >
-                                    Se proposer
-                                </Text>
-                            </TouchableOpacity>
+                                    <Text
+                                        style={[
+                                            sectionStyles.rowLabel,
+                                            isMatch
+                                                ? sectionStyles.rowLabelLogout
+                                                : sectionStyles.disabled,
+                                        ]}
+                                    >
+                                        Modifer l'annonce
+                                    </Text>
+                                </TouchableOpacity>
+                            ) : (
+                                <TouchableOpacity
+                                    style={sectionStyles.row}
+                                    onPress={() => {
+                                        if (isMatch.status) {
+                                            // handle propose action
+                                            showToast(isMatch.message);
+                                            console.log("Proposition envoyée");
+                                        } else {
+                                            showToast(isMatch.message);
+                                            console.log(
+                                                "Impossible de se proposer"
+                                            );
+                                        }
+                                    }}
+                                >
+                                    <Text
+                                        style={[
+                                            sectionStyles.rowLabel,
+                                            isMatch
+                                                ? sectionStyles.rowLabelLogout
+                                                : sectionStyles.disabled,
+                                        ]}
+                                    >
+                                        Se proposer
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
                         </View>
                     </View>
                 </View>
