@@ -1,5 +1,5 @@
 import { checkIsDriver } from "./checkIsDriver";
-import { getRoleAnnouncement } from "./getRoleAnnouncement";
+import { checkUserIsDriver } from "./checkUserIsDriver";
 
 export interface MatchPermissionResponse {
     status: boolean;
@@ -9,56 +9,50 @@ export interface MatchPermissionResponse {
 export async function matchPermission(
     announce_id: string
 ): Promise<MatchPermissionResponse> {
-    const role = await getRoleAnnouncement(announce_id);
+    const userIsDriver = await checkUserIsDriver(announce_id);
     const isDriver = await checkIsDriver();
-    console.log(`Role: ${role}, Is Driver: ${isDriver}`);
+    console.log(
+        `Is Driver user announcement: ${userIsDriver}, Is Driver user: ${isDriver}`
+    );
 
-    if (role === "passenger" && !isDriver) {
-        console.log(
-            "Aucune personne ne peut covoiturer car l'utilisateur et l'annonceur n'est pas conducteur."
-        );
+    if (!userIsDriver && !isDriver) {
+        console.log("Une personne doit être conducteur pour covoiturer. 01");
         return {
             status: false,
             message: "Une personne doit être conducteur pour covoiturer.",
         };
     }
-    if (role === "driver" && !isDriver) {
-        console.log(
-            "L'utilisateur n'est pas conducteur, mais l'annonceur est conducteur."
-        );
+    if (userIsDriver && !isDriver) {
+        console.log("ok. 01");
         return {
             status: true,
             message: "Proposition envoyée pour covoiturer.",
         };
     }
-    if (role === "passenger" && isDriver) {
-        console.log(
-            "L'utilisateur est conducteur, il peut covoiturer en tant que passager."
-        );
+    if (!userIsDriver && isDriver) {
+        console.log("ok. 02");
         return {
             status: true,
             message: "Proposition envoyée pour covoiturer.",
         };
     }
-    if (role === "driver" && isDriver) {
-        console.log(
-            "L'utilisateur est conducteur, il peut covoiturer en tant que conducteur."
-        );
+    if (userIsDriver && isDriver) {
+        console.log("ok. 03");
         return {
             status: true,
             message: "Proposition envoyée pour covoiturer.",
         };
     }
-    if (role === null) {
+    if (userIsDriver === null) {
         console.log("Aucun rôle trouvé pour cette annonce.");
         return {
             status: false,
             message: "Une personne doit être conducteur pour covoiturer.",
         };
     }
-    console.log("Rôle inconnu ou non géré.");
+    console.log("Data inconnu ou non géré.");
     return {
         status: false,
-        message: "Rôle inconnu ou non géré pour cette annonce.",
+        message: "Data inconnu ou non géré pour cette annonce.",
     };
 }
