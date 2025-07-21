@@ -5,10 +5,10 @@ import { router } from "expo-router";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
-    Alert,
     Image,
     Text,
     TextInput,
+    ToastAndroid,
     TouchableOpacity,
     View,
 } from "react-native";
@@ -39,10 +39,14 @@ const LoginScreen = () => {
             password,
         });
 
+        const showToast = (message: string) => {
+            ToastAndroid.show(message, ToastAndroid.SHORT);
+        };
+
         if (error) {
-            Alert.alert("Erreur", error.message);
+            showToast(error.message);
         } else {
-            Alert.alert("Succès", "Connexion réussie");
+            showToast("Connexion réussie !");
         }
     };
 
@@ -52,7 +56,7 @@ const LoginScreen = () => {
                 { flex: 1, backgroundColor: "#e8ecf4" },
                 {
                     paddingTop: insets.top,
-                    // paddingBottom: insets.bottom,
+                    paddingBottom: insets.bottom,
                     paddingLeft: insets.left,
                     paddingRight: insets.right,
                 },

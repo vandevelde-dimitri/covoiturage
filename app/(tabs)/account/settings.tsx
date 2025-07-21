@@ -1,6 +1,8 @@
+import { headerStyles } from "@/styles/header.styles";
 import { User } from "@/types/user.type";
 import { supabase } from "@/utils/supabase";
 import FeatherIcon from "@expo/vector-icons/Feather";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
     Image,
@@ -12,6 +14,7 @@ import {
     Switch,
     Text,
     TextInput,
+    ToastAndroid,
     TouchableOpacity,
     View,
 } from "react-native";
@@ -19,6 +22,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function SettingScreen() {
     const insets = useSafeAreaInsets();
+    const router = useRouter();
+    const showToast = (message: string) => {
+        ToastAndroid.show(message, ToastAndroid.SHORT);
+    };
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [user, setUser] = useState<User | null>(null);
 
@@ -33,7 +40,9 @@ export default function SettingScreen() {
         const { error } = await supabase.auth.signOut();
         if (error) {
             console.error("Erreur de déconnexion :", error.message);
+            return;
         }
+        showToast("Déconnexion réussie !");
     };
 
     return (
@@ -47,25 +56,31 @@ export default function SettingScreen() {
                 paddingRight: insets.right,
             }}
         >
-            <View style={styles.header}>
-                <View style={styles.headerAction}>
+            <View style={headerStyles.header}>
+                <View style={headerStyles.headerAction}>
                     <TouchableOpacity
                         onPress={() => {
-                            // handle onPress
+                            router.back();
                         }}
                     >
                         <FeatherIcon color="#000" name="arrow-left" size={24} />
                     </TouchableOpacity>
                 </View>
 
-                <Text numberOfLines={1} style={styles.headerTitle}>
-                    Compte
+                <Text numberOfLines={2} style={headerStyles.headerTitle}>
+                    Mes annonces
                 </Text>
 
-                <View style={[styles.headerAction, { alignItems: "flex-end" }]}>
+                <View
+                    style={[
+                        headerStyles.headerAction,
+                        { alignItems: "flex-end" },
+                    ]}
+                >
                     <TouchableOpacity
                         onPress={() => {
                             // handle onPress
+                            //+ add more options if needed
                         }}
                     >
                         <FeatherIcon
