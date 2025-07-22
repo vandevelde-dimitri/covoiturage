@@ -13,8 +13,6 @@ export async function getAnnouncementByUserId(user_id: string) {
             return null;
         }
 
-        console.log("Annonce récupérée:", data);
-
         return data;
     } catch (error) {
         console.error("Erreur inattendue dans getAnnouncementByid:", error);

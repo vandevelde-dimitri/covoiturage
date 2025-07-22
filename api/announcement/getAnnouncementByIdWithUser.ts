@@ -32,8 +32,6 @@ export async function getAnnouncementByidWithUser(id: string) {
             return null;
         }
 
-        console.log("Annonce récupérée:", data);
-
         return { ...data, user: data.users };
     } catch (error) {
         console.error("Erreur inattendue dans getAnnouncementByid:", error);

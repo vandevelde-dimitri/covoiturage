@@ -1,13 +1,22 @@
+import CustomModal from "@/components/ui/Modal";
+import { useAuth } from "@/hooks/authContext";
+import { useUserById } from "@/hooks/useUsers";
+import { contentStyles } from "@/styles/contentStyles";
 import { headerStyles } from "@/styles/header.styles";
+import { modalStyles } from "@/styles/modalStyles";
+import { profileStyles } from "@/styles/profile.styles";
+import { sectionStyles } from "@/styles/section.styles";
+import { Contract } from "@/types/contract.enum";
+import { Team } from "@/types/team.enum";
 import { User } from "@/types/user.type";
 import { supabase } from "@/utils/supabase";
 import FeatherIcon from "@expo/vector-icons/Feather";
+import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import {
     Image,
-    Modal,
-    Pressable,
     SafeAreaView,
     ScrollView,
     StyleSheet,
@@ -22,19 +31,61 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function SettingScreen() {
     const insets = useSafeAreaInsets();
+    const [selectedTeam, setSelectedTeam] = useState<string>("");
+    const [selectedContract, setSelectedContract] = useState<string>("");
+    const { session } = useAuth();
+    const [user, setUser] = useState<User | null>(null);
+    const [initialUser, setInitialUser] = useState<User | null>(null);
     const router = useRouter();
+    const [activeField, setActiveField] = useState<
+        | null
+        | "lastname"
+        | "firstname"
+        | "city"
+        | "team"
+        | "contract"
+        | "email_notification"
+        | "push_notification"
+        | "to_convey"
+        | "is_available"
+    >(null);
+
+    const { data, isLoading, error } = useUserById(session?.user?.id || "");
+
+    useEffect(() => {
+        if (data) {
+            setUser(data);
+            setInitialUser(data);
+            setSelectedTeam(data.team);
+        }
+    }, [data]);
+
+    if (!session?.user.id) {
+        return <Text>Chargement de la session...</Text>;
+    }
+
+    console.log("User data:", user);
+
+    if (isLoading) {
+        return <Text>Chargement...</Text>;
+    }
+    if (error) {
+        console.error(
+            "Erreur lors de la récupération de l'utilisateur:",
+            error
+        );
+        return (
+            <Text>Erreur lors de la récupération des données utilisateur.</Text>
+        );
+    }
+
+    if (!data || !user) {
+        return <Text>Aucun utilisateur trouvé.</Text>;
+    }
+
     const showToast = (message: string) => {
         ToastAndroid.show(message, ToastAndroid.SHORT);
     };
-    const [modalVisible, setModalVisible] = useState<boolean>(false);
-    const [user, setUser] = useState<User | null>(null);
-
-    const [form, setForm] = useState({
-        emailNotifications: true,
-        pushNotifications: true,
-        to_convey: false,
-        is_available: false,
-    });
 
     const handleSignOut = async () => {
         const { error } = await supabase.auth.signOut();
@@ -45,6 +96,38 @@ export default function SettingScreen() {
         showToast("Déconnexion réussie !");
     };
 
+    const handleChanges = async () => {
+        if (!user) return;
+
+        const { error } = await supabase
+            .from("users")
+            .update({
+                lastname: user.lastname,
+                firstname: user.firstname,
+                city: user.city,
+                team: user.team,
+                contract: user.contract,
+                email_notification: user.email_notification,
+                push_notification: user.push_notification,
+                to_convey: user.to_convey,
+                is_available: user.is_available,
+            })
+            .eq("id", user.id);
+
+        if (error) {
+            ToastAndroid.show(
+                "Erreur lors de la sauvegarde",
+                ToastAndroid.SHORT
+            );
+        } else {
+            ToastAndroid.show("Modifications sauvegardées", ToastAndroid.SHORT);
+            setInitialUser(user); // Mettre à jour l'état initial
+        }
+    };
+
+    console.log("team:", selectedTeam);
+
+    const hasChanges = JSON.stringify(user) !== JSON.stringify(initialUser);
     return (
         <SafeAreaView
             style={{
@@ -92,37 +175,39 @@ export default function SettingScreen() {
                 </View>
             </View>
 
-            <ScrollView contentContainerStyle={styles.content}>
-                <View style={styles.container}>
+            <ScrollView contentContainerStyle={contentStyles.container}>
+                <View style={contentStyles.container}>
                     <Image
                         alt=""
                         source={{
                             uri: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2.5&w=256&h=256&q=80",
                         }}
-                        style={styles.avatarXL}
+                        style={profileStyles.profileAvatar}
                     />
-                    <View style={styles.badge}>
-                        <FeatherIcon color="#bcbcbc" name="camera" size={22} />
-                    </View>
                 </View>
 
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>
+                <View style={sectionStyles.section}>
+                    <Text style={sectionStyles.sectionTitle}>
                         information personelle
                     </Text>
 
-                    <View style={styles.sectionBody}>
-                        <View style={[styles.rowWrapper, styles.rowFirst]}>
+                    <View style={sectionStyles.sectionBody}>
+                        <View
+                            style={[
+                                sectionStyles.rowWrapper,
+                                sectionStyles.rowFirst,
+                            ]}
+                        >
                             <TouchableOpacity
-                                onPress={() => setModalVisible(true)}
-                                style={styles.row}
+                                style={sectionStyles.row}
+                                onPress={() => setActiveField("lastname")}
                             >
-                                <Text style={styles.rowLabel}>Nom</Text>
+                                <Text style={sectionStyles.rowLabel}>Nom</Text>
 
-                                <View style={styles.rowSpacer} />
+                                <View style={sectionStyles.rowSpacer} />
 
-                                <Text style={styles.rowValue}>
-                                    {user?.lastname || "A changer"}
+                                <Text style={sectionStyles.rowValue}>
+                                    {user.lastname || "A changer"}
                                 </Text>
 
                                 <FeatherIcon
@@ -130,81 +215,83 @@ export default function SettingScreen() {
                                     name="chevron-right"
                                     size={19}
                                 />
-                                <Modal
-                                    animationType="slide"
-                                    transparent={true}
-                                    visible={modalVisible}
-                                    onRequestClose={() => {
-                                        setModalVisible(!modalVisible);
-                                    }}
+                            </TouchableOpacity>
+                            <CustomModal
+                                visible={activeField === "lastname"}
+                                onClose={() => setActiveField(null)}
+                            >
+                                <TextInput
+                                    style={modalStyles.modalText}
+                                    autoCapitalize="none"
+                                    autoCorrect={false}
+                                    clearButtonMode="while-editing"
+                                    placeholder="Entrez votre nom"
+                                    placeholderTextColor="#6b7280"
+                                    value={user.lastname}
+                                    onChangeText={(text) =>
+                                        setUser({
+                                            ...user,
+                                            lastname: text,
+                                        })
+                                    }
+                                />
+                            </CustomModal>
+                        </View>
+
+                        <View style={sectionStyles.rowWrapper}>
+                            <TouchableOpacity
+                                onPress={() => setActiveField("firstname")}
+                                style={sectionStyles.row}
+                            >
+                                <Text style={sectionStyles.rowLabel}>
+                                    Prénom
+                                </Text>
+
+                                <View style={sectionStyles.rowSpacer} />
+
+                                <Text style={sectionStyles.rowValue}>
+                                    {user.firstname || "A changer"}
+                                </Text>
+
+                                <FeatherIcon
+                                    color="#bcbcbc"
+                                    name="chevron-right"
+                                    size={19}
+                                />
+                                <CustomModal
+                                    visible={activeField === "firstname"}
+                                    onClose={() => setActiveField(null)}
                                 >
-                                    <View style={styles.centeredView}>
-                                        <View style={styles.modalView}>
-                                            <TextInput
-                                                style={styles.modalText}
-                                                autoCapitalize="none"
-                                                autoCorrect={false}
-                                                clearButtonMode="while-editing"
-                                                keyboardType="email-address"
-                                                placeholder="john@example.com"
-                                                placeholderTextColor="#6b7280"
-                                                value={user?.lastname}
-                                            ></TextInput>
-                                            <Pressable
-                                                style={[
-                                                    styles.button,
-                                                    styles.buttonClose,
-                                                ]}
-                                                onPress={() =>
-                                                    setModalVisible(
-                                                        !modalVisible
-                                                    )
-                                                }
-                                            >
-                                                <Text style={styles.textStyle}>
-                                                    Valider
-                                                </Text>
-                                            </Pressable>
-                                        </View>
-                                    </View>
-                                </Modal>
+                                    <TextInput
+                                        style={modalStyles.modalText}
+                                        autoCapitalize="none"
+                                        autoCorrect={false}
+                                        clearButtonMode="while-editing"
+                                        placeholder="Entrez votre prénom"
+                                        placeholderTextColor="#6b7280"
+                                        value={user.firstname}
+                                        onChangeText={(text) =>
+                                            setUser({
+                                                ...user,
+                                                firstname: text,
+                                            })
+                                        }
+                                    />
+                                </CustomModal>
                             </TouchableOpacity>
                         </View>
 
-                        <View style={styles.rowWrapper}>
-                            <TouchableOpacity
-                                onPress={() => {
-                                    // handle onPress
-                                }}
-                                style={styles.row}
-                            >
-                                <Text style={styles.rowLabel}>Prénom</Text>
-
-                                <View style={styles.rowSpacer} />
-
-                                <Text style={styles.rowValue}>
-                                    {user?.firstname || "A changer"}
-                                </Text>
-
-                                <FeatherIcon
-                                    color="#bcbcbc"
-                                    name="chevron-right"
-                                    size={19}
-                                />
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={styles.rowWrapper}>
-                            <View style={styles.row}>
-                                <Text style={styles.rowLabel}>
+                        <View style={sectionStyles.rowWrapper}>
+                            <View style={sectionStyles.row}>
+                                <Text style={sectionStyles.rowLabel}>
                                     Notification par e-mail
                                 </Text>
 
-                                <View style={styles.rowSpacer} />
+                                <View style={sectionStyles.rowSpacer} />
 
                                 <Switch
-                                    onValueChange={(emailNotifications) =>
-                                        setForm({ ...form, emailNotifications })
+                                    onValueChange={(email_notification) =>
+                                        setUser({ ...user, email_notification })
                                     }
                                     style={{
                                         transform: [
@@ -212,22 +299,22 @@ export default function SettingScreen() {
                                             { scaleY: 0.95 },
                                         ],
                                     }}
-                                    value={form.emailNotifications}
+                                    value={user.email_notification}
                                 />
                             </View>
                         </View>
 
-                        <View style={[styles.rowWrapper]}>
-                            <View style={styles.row}>
-                                <Text style={styles.rowLabel}>
+                        <View style={[sectionStyles.rowWrapper]}>
+                            <View style={sectionStyles.row}>
+                                <Text style={sectionStyles.rowLabel}>
                                     Notification push
                                 </Text>
 
-                                <View style={styles.rowSpacer} />
+                                <View style={sectionStyles.rowSpacer} />
 
                                 <Switch
-                                    onValueChange={(pushNotifications) =>
-                                        setForm({ ...form, pushNotifications })
+                                    onValueChange={(push_notification) =>
+                                        setUser({ ...user, push_notification })
                                     }
                                     style={{
                                         transform: [
@@ -235,23 +322,23 @@ export default function SettingScreen() {
                                             { scaleY: 0.95 },
                                         ],
                                     }}
-                                    value={form.pushNotifications}
+                                    value={user.push_notification}
                                 />
                             </View>
                         </View>
-                        <View style={styles.rowWrapper}>
+                        <View style={sectionStyles.rowWrapper}>
                             <TouchableOpacity
-                                onPress={() => {
-                                    // handle onPress
-                                }}
-                                style={styles.row}
+                                onPress={() => setActiveField("team")}
+                                style={sectionStyles.row}
                             >
-                                <Text style={styles.rowLabel}>Equipe</Text>
+                                <Text style={sectionStyles.rowLabel}>
+                                    Equipe
+                                </Text>
 
-                                <View style={styles.rowSpacer} />
+                                <View style={sectionStyles.rowSpacer} />
 
-                                <Text style={styles.rowValue}>
-                                    {user?.team}
+                                <Text style={sectionStyles.rowValue}>
+                                    {user.team}
                                 </Text>
 
                                 <FeatherIcon
@@ -259,21 +346,46 @@ export default function SettingScreen() {
                                     name="chevron-right"
                                     size={19}
                                 />
+                                <CustomModal
+                                    visible={activeField === "team"}
+                                    onClose={() => setActiveField(null)}
+                                >
+                                    <View style={styles.container}>
+                                        <Text style={styles.label}>
+                                            Votre équipe :
+                                        </Text>
+                                        <Picker
+                                            selectedValue={selectedTeam}
+                                            onValueChange={(team) =>
+                                                setUser({ ...user, team })
+                                            }
+                                            style={styles.picker}
+                                        >
+                                            {Object.values(Team).map((team) => (
+                                                <Picker.Item
+                                                    key={team}
+                                                    label={team}
+                                                    value={team}
+                                                />
+                                            ))}
+                                        </Picker>
+                                    </View>
+                                </CustomModal>
                             </TouchableOpacity>
                         </View>
-                        <View style={styles.rowWrapper}>
+                        <View style={sectionStyles.rowWrapper}>
                             <TouchableOpacity
-                                onPress={() => {
-                                    // handle onPress
-                                }}
-                                style={styles.row}
+                                onPress={() => setActiveField("city")}
+                                style={sectionStyles.row}
                             >
-                                <Text style={styles.rowLabel}>Ville</Text>
+                                <Text style={sectionStyles.rowLabel}>
+                                    Ville
+                                </Text>
 
-                                <View style={styles.rowSpacer} />
+                                <View style={sectionStyles.rowSpacer} />
 
-                                <Text style={styles.rowValue}>
-                                    {user?.city}
+                                <Text style={sectionStyles.rowValue}>
+                                    {user.city}
                                 </Text>
 
                                 <FeatherIcon
@@ -281,21 +393,41 @@ export default function SettingScreen() {
                                     name="chevron-right"
                                     size={19}
                                 />
+                                <CustomModal
+                                    visible={activeField === "city"}
+                                    onClose={() => setActiveField(null)}
+                                >
+                                    <TextInput
+                                        style={modalStyles.modalText}
+                                        autoCapitalize="none"
+                                        autoCorrect={false}
+                                        clearButtonMode="while-editing"
+                                        placeholder="Indiquer votre ville"
+                                        placeholderTextColor="#6b7280"
+                                        value={user.city}
+                                        onChangeText={(text) =>
+                                            setUser({
+                                                ...user,
+                                                city: text,
+                                            })
+                                        }
+                                    />
+                                </CustomModal>
                             </TouchableOpacity>
                         </View>
-                        <View style={styles.rowWrapper}>
+                        <View style={sectionStyles.rowWrapper}>
                             <TouchableOpacity
-                                onPress={() => {
-                                    // handle onPress
-                                }}
-                                style={styles.row}
+                                onPress={() => setActiveField("contract")}
+                                style={sectionStyles.row}
                             >
-                                <Text style={styles.rowLabel}>Contrat</Text>
+                                <Text style={sectionStyles.rowLabel}>
+                                    Contrat
+                                </Text>
 
-                                <View style={styles.rowSpacer} />
+                                <View style={sectionStyles.rowSpacer} />
 
-                                <Text style={styles.rowValue}>
-                                    {user?.contract}
+                                <Text style={sectionStyles.rowValue}>
+                                    {user.contract}
                                 </Text>
 
                                 <FeatherIcon
@@ -303,17 +435,46 @@ export default function SettingScreen() {
                                     name="chevron-right"
                                     size={19}
                                 />
+                                <CustomModal
+                                    visible={activeField === "contract"}
+                                    onClose={() => setActiveField(null)}
+                                >
+                                    <View style={styles.container}>
+                                        <Text style={styles.label}>
+                                            Votre contrat :
+                                        </Text>
+                                        <Picker
+                                            selectedValue={selectedContract}
+                                            onValueChange={(contract) =>
+                                                setUser({ ...user, contract })
+                                            }
+                                            style={styles.picker}
+                                        >
+                                            {Object.values(Contract).map(
+                                                (contract) => (
+                                                    <Picker.Item
+                                                        key={contract}
+                                                        label={contract}
+                                                        value={contract}
+                                                    />
+                                                )
+                                            )}
+                                        </Picker>
+                                    </View>
+                                </CustomModal>
                             </TouchableOpacity>
                         </View>
-                        <View style={[styles.rowWrapper]}>
-                            <View style={styles.row}>
-                                <Text style={styles.rowLabel}>Véhiculer</Text>
+                        <View style={[sectionStyles.rowWrapper]}>
+                            <View style={sectionStyles.row}>
+                                <Text style={sectionStyles.rowLabel}>
+                                    Véhiculer
+                                </Text>
 
-                                <View style={styles.rowSpacer} />
+                                <View style={sectionStyles.rowSpacer} />
 
                                 <Switch
                                     onValueChange={(to_convey) =>
-                                        setForm({ ...form, to_convey })
+                                        setUser({ ...user, to_convey })
                                     }
                                     style={{
                                         transform: [
@@ -321,19 +482,26 @@ export default function SettingScreen() {
                                             { scaleY: 0.95 },
                                         ],
                                     }}
-                                    value={user?.to_convey}
+                                    value={user.to_convey}
                                 />
                             </View>
                         </View>
-                        <View style={[styles.rowWrapper, styles.rowLast]}>
-                            <View style={styles.row}>
-                                <Text style={styles.rowLabel}>Disponible</Text>
+                        <View
+                            style={[
+                                sectionStyles.rowWrapper,
+                                sectionStyles.rowLast,
+                            ]}
+                        >
+                            <View style={sectionStyles.row}>
+                                <Text style={sectionStyles.rowLabel}>
+                                    Disponible
+                                </Text>
 
-                                <View style={styles.rowSpacer} />
+                                <View style={sectionStyles.rowSpacer} />
 
                                 <Switch
                                     onValueChange={(is_available) =>
-                                        setForm({ ...form, is_available })
+                                        setUser({ ...user, is_available })
                                     }
                                     style={{
                                         transform: [
@@ -341,30 +509,39 @@ export default function SettingScreen() {
                                             { scaleY: 0.95 },
                                         ],
                                     }}
-                                    value={user?.is_available}
+                                    value={user.is_available}
                                 />
                             </View>
                         </View>
                     </View>
                 </View>
 
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>
+                <View style={sectionStyles.section}>
+                    <Text style={sectionStyles.sectionTitle}>
                         Information de connexion
                     </Text>
 
-                    <View style={styles.sectionBody}>
-                        <View style={[styles.rowWrapper, styles.rowFirst]}>
+                    <View style={sectionStyles.sectionBody}>
+                        <View
+                            style={[
+                                sectionStyles.rowWrapper,
+                                sectionStyles.rowFirst,
+                            ]}
+                        >
                             <TouchableOpacity
                                 onPress={() => {
                                     // handle onPress
                                 }}
-                                style={styles.row}
+                                style={sectionStyles.row}
                             >
-                                <Text style={styles.rowLabel}>Email</Text>
+                                <Text style={sectionStyles.rowLabel}>
+                                    Email
+                                </Text>
 
-                                <View style={styles.rowSpacer} />
-                                <Text style={styles.rowValue}>A changer</Text>
+                                <View style={sectionStyles.rowSpacer} />
+                                <Text style={sectionStyles.rowValue}>
+                                    A changer
+                                </Text>
 
                                 <FeatherIcon
                                     color="#bcbcbc"
@@ -374,18 +551,23 @@ export default function SettingScreen() {
                             </TouchableOpacity>
                         </View>
 
-                        <View style={[styles.rowWrapper, styles.rowLast]}>
+                        <View
+                            style={[
+                                sectionStyles.rowWrapper,
+                                sectionStyles.rowLast,
+                            ]}
+                        >
                             <TouchableOpacity
                                 onPress={() => {
                                     // handle onPress
                                 }}
-                                style={styles.row}
+                                style={sectionStyles.row}
                             >
-                                <Text style={styles.rowLabel}>
+                                <Text style={sectionStyles.rowLabel}>
                                     Modifier le mot de passe
                                 </Text>
 
-                                <View style={styles.rowSpacer} />
+                                <View style={sectionStyles.rowSpacer} />
 
                                 <FeatherIcon
                                     color="#bcbcbc"
@@ -397,24 +579,24 @@ export default function SettingScreen() {
                     </View>
                 </View>
 
-                <View style={styles.section}>
-                    <View style={styles.sectionBody}>
+                <View style={sectionStyles.section}>
+                    <View style={sectionStyles.sectionBody}>
                         <View
                             style={[
-                                styles.rowWrapper,
-                                styles.rowFirst,
-                                styles.rowLast,
+                                sectionStyles.rowWrapper,
+                                sectionStyles.rowFirst,
+                                sectionStyles.rowLast,
                                 { alignItems: "center" },
                             ]}
                         >
                             <TouchableOpacity
                                 onPress={handleSignOut}
-                                style={styles.row}
+                                style={sectionStyles.row}
                             >
                                 <Text
                                     style={[
-                                        styles.rowLabel,
-                                        styles.rowLabelLogout,
+                                        sectionStyles.rowLabel,
+                                        sectionStyles.rowLabelLogout,
                                     ]}
                                 >
                                     Log Out
@@ -423,8 +605,36 @@ export default function SettingScreen() {
                         </View>
                     </View>
                 </View>
+                {hasChanges && (
+                    <View style={sectionStyles.section}>
+                        <View style={sectionStyles.sectionBody}>
+                            <View
+                                style={[
+                                    sectionStyles.rowWrapper,
+                                    sectionStyles.rowFirst,
+                                    sectionStyles.rowLast,
+                                    { alignItems: "center" },
+                                ]}
+                            >
+                                <TouchableOpacity
+                                    onPress={handleChanges}
+                                    style={sectionStyles.row}
+                                >
+                                    <Text
+                                        style={[
+                                            sectionStyles.rowLabel,
+                                            sectionStyles.rowLabelLogout,
+                                        ]}
+                                    >
+                                        Enregistrer les modifications
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                )}
 
-                <Text style={styles.contentFooter}>
+                <Text style={contentStyles.contentFooter}>
                     App Version 2.24 #50491
                 </Text>
             </ScrollView>
@@ -433,198 +643,20 @@ export default function SettingScreen() {
 }
 
 const styles = StyleSheet.create({
-    /** Header */
-    header: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        width: "100%",
-        paddingHorizontal: 16,
-    },
-    headerAction: {
-        width: 40,
-        height: 40,
-        alignItems: "flex-start",
-        justifyContent: "center",
-    },
-    headerTitle: {
-        fontSize: 19,
-        fontWeight: "600",
-        color: "#000",
-        flexGrow: 1,
-        flexShrink: 1,
-        flexBasis: 0,
-        textAlign: "center",
-    },
-    /** Content */
-    content: {
-        paddingHorizontal: 16,
-    },
-    contentFooter: {
-        marginTop: 24,
-        fontSize: 13,
-        fontWeight: "500",
-        textAlign: "center",
-        color: "#a69f9f",
-    },
-    /** Section */
-    section: {
-        paddingVertical: 12,
-    },
-    sectionTitle: {
-        margin: 8,
-        marginLeft: 12,
-        fontSize: 13,
-        letterSpacing: 0.33,
-        fontWeight: "500",
-        color: "#a69f9f",
-        textTransform: "uppercase",
-    },
-    sectionBody: {
-        borderRadius: 12,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
-        shadowOpacity: 0.2,
-        shadowRadius: 1.41,
-        elevation: 2,
-    },
-    /** Profile */
-    profile: {
-        padding: 12,
-        backgroundColor: "#fff",
-        borderRadius: 12,
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "flex-start",
-    },
-    profileAvatar: {
-        width: 60,
-        height: 60,
-        borderRadius: 9999,
-        marginRight: 12,
-    },
-    profileBody: {
-        marginRight: "auto",
-    },
-    profileName: {
-        fontSize: 18,
-        fontWeight: "600",
-        color: "#292929",
-    },
-    profileHandle: {
-        marginTop: 2,
-        fontSize: 16,
-        fontWeight: "400",
-        color: "#858585",
-    },
-    /** Row */
-    row: {
-        height: 44,
-        width: "100%",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "flex-start",
-        paddingRight: 12,
-    },
-    rowWrapper: {
-        paddingLeft: 16,
-        backgroundColor: "#fff",
-        borderTopWidth: 1,
-        borderColor: "#f0f0f0",
-    },
-    rowFirst: {
-        borderTopLeftRadius: 12,
-        borderTopRightRadius: 12,
-    },
-    rowLabel: {
-        fontSize: 16,
-        letterSpacing: 0.24,
-        color: "#000",
-    },
-    rowSpacer: {
-        flexGrow: 1,
-        flexShrink: 1,
-        flexBasis: 0,
-    },
-    rowValue: {
-        fontSize: 16,
-        fontWeight: "500",
-        color: "#ababab",
-        marginRight: 4,
-    },
-    rowLast: {
-        borderBottomLeftRadius: 12,
-        borderBottomRightRadius: 12,
-    },
-    rowLabelLogout: {
-        width: "100%",
-        textAlign: "center",
-        fontWeight: "600",
-        color: "#dc2626",
-    },
-    /** Avatar */
     container: {
-        paddingVertical: 18,
-        paddingHorizontal: 24,
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    avatarXL: {
-        width: 64,
-        height: 64,
-        borderRadius: 9999,
-    },
-    badge: {
-        position: "absolute",
-        // bottom: 32,
-        // right: 14,
-        backgroundColor: "white",
-        borderRadius: 9999,
-        padding: 2,
-    },
-
-    // Modal styles
-    centeredView: {
-        flex: 1,
-        justifyContent: "flex-end",
-    },
-    modalView: {
         margin: 20,
-        borderRadius: 20,
-        padding: 35,
-        alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
-        backgroundColor: "#2196F3",
     },
-    button: {
-        borderRadius: 20,
-        padding: 10,
-        elevation: 2,
+    label: {
+        fontSize: 16,
+        marginBottom: 8,
     },
-    buttonOpen: {
-        backgroundColor: "#F194FF",
+    picker: {
+        height: 50,
+        paddingHorizontal: 10,
+        backgroundColor: "#be0909ff",
     },
-    buttonClose: {
-        backgroundColor: "#2196F3",
-    },
-    textStyle: {
-        color: "white",
-        fontWeight: "bold",
-        textAlign: "center",
-    },
-    modalText: {
-        marginBottom: 15,
-        textAlign: "center",
+    value: {
+        marginTop: 10,
+        color: "#555",
     },
 });

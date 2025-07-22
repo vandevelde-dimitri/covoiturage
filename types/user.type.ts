@@ -1,6 +1,3 @@
-import { Contract } from "./contract.enum";
-import { Team } from "./team.enum";
-
 export type User = {
     id: string;
     lastname: string;
@@ -8,10 +5,12 @@ export type User = {
     email: string;
     city: string;
     image_profile: string;
-    team: Team;
-    contract: Contract;
+    team: string;
+    contract: string;
     fc_id: string;
     to_convey: boolean;
     is_available: boolean;
     announcement_id: string;
+    push_notification: boolean;
+    email_notification: boolean;
 };

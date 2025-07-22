@@ -14,7 +14,9 @@ export async function getUserById(id: string) {
                 city,
                 image_profile,
                 to_convey,
-                is_available
+                is_available,
+                push_notification,
+                email_notification
             `
             )
             .eq("id", id)
@@ -23,8 +25,6 @@ export async function getUserById(id: string) {
             console.error("Erreur récupération utilisateur:", error);
             return null;
         }
-
-        console.log("Utilisateur récupéré:", data);
 
         return data;
     } catch (error) {

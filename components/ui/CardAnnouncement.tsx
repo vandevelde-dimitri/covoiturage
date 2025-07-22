@@ -2,7 +2,6 @@ import { sectionStyles } from "@/styles/section.styles";
 import { Text, TouchableOpacity, View } from "react-native";
 
 export default function CardAnnouncement({ item }) {
-    console.log("CardAnnouncement item:", item);
     const { users: user } = item;
 
     return (
