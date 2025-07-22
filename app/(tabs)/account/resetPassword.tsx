@@ -15,7 +15,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as yup from "yup";
 
-const LoginScreen = () => {
+const ResetPasswordScreen = () => {
     const insets = useSafeAreaInsets();
     const schema = yup.object({
         email: yup.string().email("Email invalide").required("Email requis"),
@@ -74,12 +74,7 @@ const LoginScreen = () => {
                     />
 
                     <Text style={formAuthStyles.title}>
-                        Connecte toi à
-                        <Text style={{ color: "#075eec" }}>MyApp</Text>
-                    </Text>
-
-                    <Text style={formAuthStyles.subtitle}>
-                        Et commence à reduire ton empreinte carbone
+                        Defini ton nouveau mot de passe pour{" "}
                     </Text>
                 </View>
 
@@ -155,7 +150,7 @@ const LoginScreen = () => {
 
                     <TouchableOpacity
                         onPress={() => {
-                            router.push("/(auth)/forgotPassword");
+                            // handle link
                         }}
                     >
                         <Text style={formAuthStyles.formLink}>
@@ -181,4 +176,4 @@ const LoginScreen = () => {
     );
 };
 
-export default LoginScreen;
+export default ResetPasswordScreen;

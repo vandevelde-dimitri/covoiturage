@@ -1,11 +1,13 @@
 import CustomModal from "@/components/ui/Modal";
+import { useGetAuth, useUpdateAuth } from "@/hooks/auth/useAuth";
 import { useAuth } from "@/hooks/authContext";
-import { useUserById } from "@/hooks/useUsers";
+import { useUpdateUser, useUserById } from "@/hooks/useUsers";
 import { contentStyles } from "@/styles/contentStyles";
 import { headerStyles } from "@/styles/header.styles";
 import { modalStyles } from "@/styles/modalStyles";
 import { profileStyles } from "@/styles/profile.styles";
 import { sectionStyles } from "@/styles/section.styles";
+import { UpdateAuthBody } from "@/types/auth.interface";
 import { Contract } from "@/types/contract.enum";
 import { Team } from "@/types/team.enum";
 import { User } from "@/types/user.type";
@@ -13,7 +15,6 @@ import { supabase } from "@/utils/supabase";
 import FeatherIcon from "@expo/vector-icons/Feather";
 import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
-
 import React, { useEffect, useState } from "react";
 import {
     Image,
@@ -31,11 +32,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function SettingScreen() {
     const insets = useSafeAreaInsets();
-    const [selectedTeam, setSelectedTeam] = useState<string>("");
-    const [selectedContract, setSelectedContract] = useState<string>("");
     const { session } = useAuth();
     const [user, setUser] = useState<User | null>(null);
+    const [userAuth, setUserAuth] = useState<UpdateAuthBody | null>(null);
     const [initialUser, setInitialUser] = useState<User | null>(null);
+    const [initialAuth, setInitialAuth] = useState<UpdateAuthBody | null>(null);
     const router = useRouter();
     const [activeField, setActiveField] = useState<
         | null
@@ -48,23 +49,38 @@ export default function SettingScreen() {
         | "push_notification"
         | "to_convey"
         | "is_available"
+        | "email"
+        | "password"
     >(null);
 
     const { data, isLoading, error } = useUserById(session?.user?.id || "");
+    const { mutate: updateAuth, isPending: pendingAuth } = useUpdateAuth();
+    const { mutate: updateUser, isPending: pendingUser } = useUpdateUser();
+    const {
+        data: auth,
+        isLoading: authLoading,
+        error: authError,
+    } = useGetAuth();
 
     useEffect(() => {
         if (data) {
             setUser(data);
             setInitialUser(data);
-            setSelectedTeam(data.team);
         }
     }, [data]);
+
+    useEffect(() => {
+        if (auth) {
+            setUserAuth(auth);
+            setInitialAuth(auth);
+        }
+    }, [auth]);
+
+    console.log("auth:", auth);
 
     if (!session?.user.id) {
         return <Text>Chargement de la session...</Text>;
     }
-
-    console.log("User data:", user);
 
     if (isLoading) {
         return <Text>Chargement...</Text>;
@@ -98,36 +114,37 @@ export default function SettingScreen() {
 
     const handleChanges = async () => {
         if (!user) return;
-
-        const { error } = await supabase
-            .from("users")
-            .update({
-                lastname: user.lastname,
-                firstname: user.firstname,
-                city: user.city,
-                team: user.team,
-                contract: user.contract,
-                email_notification: user.email_notification,
-                push_notification: user.push_notification,
-                to_convey: user.to_convey,
-                is_available: user.is_available,
-            })
-            .eq("id", user.id);
-
-        if (error) {
-            ToastAndroid.show(
-                "Erreur lors de la sauvegarde",
-                ToastAndroid.SHORT
+        if (userAuth?.email !== initialAuth?.email) {
+            updateAuth(
+                { email: userAuth?.email, password: userAuth?.password },
+                {
+                    onSuccess: () => {
+                        ToastAndroid.show(
+                            "Authentification mise à jour",
+                            ToastAndroid.SHORT
+                        );
+                    },
+                }
             );
-        } else {
-            ToastAndroid.show("Modifications sauvegardées", ToastAndroid.SHORT);
-            setInitialUser(user); // Mettre à jour l'état initial
+            setInitialAuth({ ...userAuth, email: userAuth?.email });
         }
+        updateUser(
+            { ...user, id: user.id },
+            {
+                onSuccess: () => {
+                    ToastAndroid.show(
+                        "Information mise à jour",
+                        ToastAndroid.SHORT
+                    );
+                },
+            }
+        );
+        setInitialUser(user);
     };
 
-    console.log("team:", selectedTeam);
-
-    const hasChanges = JSON.stringify(user) !== JSON.stringify(initialUser);
+    const hasChanges =
+        JSON.stringify(user) !== JSON.stringify(initialUser) ||
+        JSON.stringify(userAuth) !== JSON.stringify(initialAuth);
     return (
         <SafeAreaView
             style={{
@@ -355,7 +372,7 @@ export default function SettingScreen() {
                                             Votre équipe :
                                         </Text>
                                         <Picker
-                                            selectedValue={selectedTeam}
+                                            selectedValue={user.team}
                                             onValueChange={(team) =>
                                                 setUser({ ...user, team })
                                             }
@@ -444,7 +461,7 @@ export default function SettingScreen() {
                                             Votre contrat :
                                         </Text>
                                         <Picker
-                                            selectedValue={selectedContract}
+                                            selectedValue={user.contract}
                                             onValueChange={(contract) =>
                                                 setUser({ ...user, contract })
                                             }
@@ -529,9 +546,7 @@ export default function SettingScreen() {
                             ]}
                         >
                             <TouchableOpacity
-                                onPress={() => {
-                                    // handle onPress
-                                }}
+                                onPress={() => setActiveField("email")}
                                 style={sectionStyles.row}
                             >
                                 <Text style={sectionStyles.rowLabel}>
@@ -540,7 +555,7 @@ export default function SettingScreen() {
 
                                 <View style={sectionStyles.rowSpacer} />
                                 <Text style={sectionStyles.rowValue}>
-                                    A changer
+                                    {userAuth?.email}
                                 </Text>
 
                                 <FeatherIcon
@@ -548,6 +563,27 @@ export default function SettingScreen() {
                                     name="chevron-right"
                                     size={19}
                                 />
+                                <CustomModal
+                                    visible={activeField === "email"}
+                                    onClose={() => setActiveField(null)}
+                                >
+                                    <TextInput
+                                        style={modalStyles.modalText}
+                                        autoCapitalize="none"
+                                        autoCorrect={false}
+                                        keyboardType="email-address"
+                                        clearButtonMode="while-editing"
+                                        placeholder="Entrez votre email"
+                                        placeholderTextColor="#6b7280"
+                                        value={userAuth?.email}
+                                        onChangeText={(text) =>
+                                            setUserAuth({
+                                                ...userAuth,
+                                                email: text,
+                                            })
+                                        }
+                                    />
+                                </CustomModal>
                             </TouchableOpacity>
                         </View>
 
@@ -559,7 +595,10 @@ export default function SettingScreen() {
                         >
                             <TouchableOpacity
                                 onPress={() => {
-                                    // handle onPress
+                                    router.push({
+                                        pathname:
+                                            "/(tabs)/account/resetPassword",
+                                    });
                                 }}
                                 style={sectionStyles.row}
                             >

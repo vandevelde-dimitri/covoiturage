@@ -1,7 +1,12 @@
 {
-  "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit",
-    "source.organizeImports": "explicit",
-    "source.sortMembers": "explicit"
-  }
+    "editor.codeActionsOnSave": {
+        "source.fixAll": "explicit",
+        "source.organizeImports": "explicit",
+        "source.sortMembers": "explicit"
+    },
+    "liveServer.settings.useLocalIp": false,
+    "liveServer.settings.NoBrowser": true,
+    "liveServer.settings.wait": 0,
+    "liveServer.settings.donotVerifyTags": true,
+    "liveServer.settings.enableBrotli": false
 }

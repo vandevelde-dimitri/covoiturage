@@ -1,7 +1,7 @@
+import { useAuth } from "@/hooks/authContext";
 import { formAuthStyles } from "@/styles/form.styles";
 import { supabase } from "@/utils/supabase";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { router } from "expo-router";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -15,8 +15,10 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as yup from "yup";
 
-const LoginScreen = () => {
+const ForgotPasswordScreen = () => {
     const insets = useSafeAreaInsets();
+    const { session } = useAuth();
+
     const schema = yup.object({
         email: yup.string().email("Email invalide").required("Email requis"),
         password: yup
@@ -31,6 +33,7 @@ const LoginScreen = () => {
     } = useForm({
         resolver: yupResolver(schema),
     });
+    console.log("✅  Session:", session);
 
     const onSubmit = async (data: { email: string; password: string }) => {
         const { email, password } = data;
@@ -74,12 +77,7 @@ const LoginScreen = () => {
                     />
 
                     <Text style={formAuthStyles.title}>
-                        Connecte toi à
-                        <Text style={{ color: "#075eec" }}>MyApp</Text>
-                    </Text>
-
-                    <Text style={formAuthStyles.subtitle}>
-                        Et commence à reduire ton empreinte carbone
+                        Mot de passe oublié
                     </Text>
                 </View>
 
@@ -147,38 +145,15 @@ const LoginScreen = () => {
                         <TouchableOpacity onPress={handleSubmit(onSubmit)}>
                             <View style={formAuthStyles.btn}>
                                 <Text style={formAuthStyles.btnText}>
-                                    Let's go
+                                    Retrouver la mémoire
                                 </Text>
                             </View>
                         </TouchableOpacity>
                     </View>
-
-                    <TouchableOpacity
-                        onPress={() => {
-                            router.push("/(auth)/forgotPassword");
-                        }}
-                    >
-                        <Text style={formAuthStyles.formLink}>
-                            Petit trou de mémoire?
-                        </Text>
-                    </TouchableOpacity>
                 </View>
             </View>
-
-            <TouchableOpacity
-                onPress={() => {
-                    router.push("/register");
-                }}
-            >
-                <Text style={formAuthStyles.formFooter}>
-                    Pas encore de compte ?{" "}
-                    <Text style={{ textDecorationLine: "underline" }}>
-                        Inscris toi
-                    </Text>
-                </Text>
-            </TouchableOpacity>
         </View>
     );
 };
 
-export default LoginScreen;
+export default ForgotPasswordScreen;
